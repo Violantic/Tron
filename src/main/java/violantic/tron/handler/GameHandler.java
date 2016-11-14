@@ -6,6 +6,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import violantic.tron.Tron;
 import violantic.tron.game.GameState;
+import violantic.tron.util.ChatUtil;
 
 /**
  * Created by Ethan on 11/13/2016.
@@ -13,6 +14,7 @@ import violantic.tron.game.GameState;
 public class GameHandler implements Runnable {
 
     private int second = 60;
+    private boolean enabled = true;
 
     private Tron instance;
 
@@ -30,6 +32,10 @@ public class GameHandler implements Runnable {
 
     public void setSecond(int second) {
         this.second = second;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public void pling() {
@@ -51,6 +57,7 @@ public class GameHandler implements Runnable {
     }
 
     public void run() {
+        if(!enabled) return;
         if(instance.getCurrent().getName().equalsIgnoreCase("Lobby")) {
             if(second > 0) {
                 handleXP();
@@ -86,7 +93,22 @@ public class GameHandler implements Runnable {
             }
             second--;
         } else if(instance.getCurrent().getName().equalsIgnoreCase("Progress")) {
-
+            if(instance.getTrailManager().getUserMap().keySet().size() == 1) {
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    online.sendMessage(ChatColor.DARK_GRAY + "----------------------------------------------------");
+                    online.sendMessage("");
+                    ChatUtil.sendCenteredMessage(online, Tron.getInstance().getPrefix());
+                    String winner;
+                    if(instance.getTrailManager().getUserMap().containsKey(online.getUniqueId())) {
+                        winner = online.getName();
+                        ChatUtil.sendCenteredMessage(online, ChatColor.YELLOW + winner + " has won the game!");
+                    }
+                    online.sendMessage("");
+                    online.sendMessage("");
+                    online.sendMessage(ChatColor.DARK_GRAY + "----------------------------------------------------");
+                }
+                enabled = false;
+            }
         }
     }
 }

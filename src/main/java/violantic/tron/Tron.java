@@ -1,11 +1,16 @@
 package violantic.tron;
 
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import violantic.tron.game.GameState;
 import violantic.tron.handler.GameHandler;
 import violantic.tron.handler.TrailHandler;
 import violantic.tron.manager.TrailManager;
+import violantic.tron.util.LocationUtil;
+
+import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * Created by Ethan on 11/13/2016.
@@ -69,6 +74,15 @@ public class Tron extends JavaPlugin {
 
     public void startTrails() {
         getServer().getScheduler().runTaskTimer(this, new TrailHandler(this), 0l, 5l);
+    }
+
+    public void teleport() {
+        for(UUID uuid : getTrailManager().getUserMap().keySet()) {
+            Player player = getServer().getPlayer(uuid);
+            player.teleport(LocationUtil.getCircle(LocationUtil.getLocation("world", getConfig().getString("center")), 20, maximumPlayers())
+                    .get(Arrays.asList(getTrailManager().getUserMap().keySet()).indexOf(uuid
+            )));
+        }
     }
 
     public int minimumPlayers() {
